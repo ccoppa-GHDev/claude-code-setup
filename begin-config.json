@@ -1,0 +1,51 @@
+{
+  "_version": "2.3.0",
+  "_description": "Hook configurations for /begin command. Select per project based on path (Web/SaaS or Agentic).",
+
+  "preferences": {
+    "saveReportToProject": true,
+    "askAboutHooks": true
+  },
+
+  "hooks": {
+    "notifications": {
+      "name": "Desktop Notifications",
+      "description": "Get notified when Claude needs your attention (macOS only — see CUSTOMIZATION-GUIDE.md for other platforms)",
+      "path": "both",
+      "event": "Notification",
+      "command": "osascript -e 'display notification \"Claude needs attention\" with title \"Claude Code\" sound name \"Ping\"'"
+    },
+    "prettier": {
+      "name": "Auto-format with Prettier",
+      "description": "Format files automatically after Claude edits them",
+      "path": "web",
+      "event": "PostToolUse",
+      "matcher": "Write(*.{ts,tsx,js,jsx,json,md})",
+      "command": "npx prettier --write \"$CLAUDE_FILE_PATH\" 2>/dev/null || true"
+    },
+    "eslint": {
+      "name": "Auto-fix with ESLint",
+      "description": "Run ESLint fix after Claude edits TypeScript/JavaScript",
+      "path": "web",
+      "event": "PostToolUse",
+      "matcher": "Write(*.{ts,tsx,js,jsx})",
+      "command": "npx eslint --fix \"$CLAUDE_FILE_PATH\" 2>/dev/null || true"
+    },
+    "ruff": {
+      "name": "Auto-format Python with Ruff",
+      "description": "Format and lint Python files after Claude edits them",
+      "path": "agentic",
+      "event": "PostToolUse",
+      "matcher": "Write(*.py)",
+      "command": "ruff format \"$CLAUDE_FILE_PATH\" 2>/dev/null && ruff check --fix \"$CLAUDE_FILE_PATH\" 2>/dev/null || true"
+    },
+    "block-dangerous": {
+      "name": "Block Dangerous Commands",
+      "description": "Prevent execution of destructive commands",
+      "path": "both",
+      "event": "PreToolUse",
+      "matcher": "Bash",
+      "command": "echo \"$CLAUDE_TOOL_INPUT\" | grep -qE '(rm -rf /|rm -rf ~|DROP DATABASE|DROP TABLE)' && exit 2 || exit 0"
+    }
+  }
+}
